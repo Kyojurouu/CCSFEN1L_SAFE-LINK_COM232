@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SafeLink — Automated Link Validation & Security Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="CSS/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.4.2/qr-scanner.umd.min.js"></script>
+</head>
+<body>
+  <nav class="topnav">
+    <a class="btn-chip home" href="#" onclick="showHome()">HOME</a>
+    <a class="btn-chip help" href="#" onclick="showHelp()">HELP</a>
+  </nav>
+ 
+  <header class="hero container">
+    <h1 class="brand">Safe<span>Link</span></h1>
+    <div class="subtitle">Automated Link Validation & Security Scanner</div>
+    <p class="lead">Protect yourself from malicious URLs, phishing attacks, and dangerous QR codes with SafeLink that automatically checks and validates it before you click.</p>
+    <button class="cta" onclick="showScanner()">START SCANNING</button>
+  </header>
+ 
+  <div class="scanner-section">
+    <div style="text-align:center; margin-bottom:40px;">
+      <h1 class="brand">Safe<span>Link</span></h1>
+      <div class="subtitle">Automated Link Validation & Security Scanner</div>
+    </div>
+   
+    <!-- URL Scanner -->
+    <div class="scanner-card">
+      <input type="url" class="url-input" id="url-input" placeholder="Enter URL to scan (e.g., https://example.com)">
+      <button class="scan-btn url" id="scan-url-btn">SCAN URL</button>
+    </div>
+ 
+    <!-- QR Code Scanner -->
+    <div class="scanner-card">
+      <div class="qr-upload-area" id="qr-upload-area">
+        <div>Click to upload or drop QR code here</div>
+        <small style="opacity:0.7; margin-top:8px; display:block">Supports JPG, PNG files</small>
+      </div>
+      <input type="file" id="qr-file" accept="image/*">
+      <button class="scan-btn qr" id="scan-qr-btn">SCAN QR</button>
+    </div>
+ 
+    <!-- Results -->
+    <div id="results"></div>
+  </div>
+ 
+  <!-- Help Section -->
+  <div class="help-section">
+    <div style="text-align:center; margin-bottom:40px;">
+      <h1 class="brand">Safe<span>Link</span></h1>
+      <div class="subtitle">Automated Link Validation & Security Scanner</div>
+    </div>
+ 
+    <!-- Do's - Best Practices -->
+    <div class="help-card">
+      <div class="help-title">Do's - Best Practices</div>
+      <div class="help-item">
+        <h4>Always verify URLs:</h4>
+        <p>Check the full URL before clicking, especially in emails and messages from unknown senders.</p>
+      </div>
+      <div class="help-item">
+        <h4>Use HTTPS websites:</h4>
+        <p>Look for the padlock icon and "https://" in the address bar for secure connections.</p>
+      </div>
+      <div class="help-item">
+        <h4>Hover before clicking:</h4>
+        <p>Hover links to see their actual destination in the status bar.</p>
+      </div>
+      <div class="help-item">
+        <h4>Keep software updated:</h4>
+        <p>Maintain updated browsers and security software for maximum protection.</p>
+      </div>
+      <div class="help-item">
+        <h4>Use SafeLink:</h4>
+        <p>Scan suspicious links with our tool before visiting them.</p>
+      </div>
+    </div>
+ 
+    <!-- Don'ts - What to Avoid -->
+    <div class="help-card">
+      <div class="help-title">Don'ts - What to Avoid</div>
+      <div class="help-item danger">
+        <h4>Don't click shortened URLs blindly:</h4>
+        <p>Services like bit.ly can hide malicious destinations.</p>
+      </div>
+      <div class="help-item danger">
+        <h4>Don't trust urgent messages:</h4>
+        <p>Phishers create false urgency to bypass your caution.</p>
+      </div>
+      <div class="help-item danger">
+        <h4>Don't enter credentials on suspicious sites:</h4>
+        <p>Always verify you're on the legitimate website.</p>
+      </div>
+      <div class="help-item danger">
+        <h4>Don't ignore browser warnings:</h4>
+        <p>Your browser's security warnings are there for a reason.</p>
+      </div>
+      <div class="help-item danger">
+        <h4>Never download from untrusted links:</h4>
+        <p>Malicious downloads can compromise your entire system.</p>
+      </div>
+    </div>
+ 
+    <!-- Security Education -->
+    <div class="help-card">
+      <div class="help-title">Security Education</div>
+      <div class="help-item warning">
+        <h4>Understanding Phishing Attacks:</h4>
+        <p>Phishing is a cyberattack where attackers impersonate legitimate organizations to steal sensitive information. These attacks often use fake websites that look identical to real ones, tricking users into entering passwords, credit card numbers, and other sensitive data.</p>
+      </div>
+      <div class="help-item warning">
+        <h4>How URL Manipulation Works:</h4>
+        <p>Cybercriminals use various techniques to disguise malicious links, including domain spoofing (e.g., goog1e.com), suspicious subdomains (e.g. pay-paypal.com), and URL shortening to hide destinations. Always be cautious of redirected links.</p>
+      </div>
+      <div class="help-item warning">
+        <h4>The Anatomy of a Suspicious URL:</h4>
+        <p>Red flags include unusual character placement, excessive subdomains, urgent language or surrounding text, and brand names followed by suspicious extensions. If something looks or feels wrong, trust your instincts and investigate.</p>
+      </div>
+      <div class="help-item warning">
+        <h4>Safe Browsing Habits:</h4>
+        <p>Develop good security habits by typing known URLs directly into the browser address bar instead of clicking links, bookmarking important sites, keeping browsers and security software updated, and always using secure connections.</p>
+      </div>
+    </div>
+  </div>
+ 
+  <main class="container" id="features">
+    <h2 class="section-title">FEATURES</h2>
+    <section class="grid">
+      <article class="card">
+        <h3>REAL TIME SECURITY ANALYSIS</h3>
+        <p>Advanced algorithms scan links for malicious content, phishing attempts, and security threats in real‑time.</p>
+      </article>
+      <article class="card">
+        <h3>DETAILED METADATA</h3>
+        <p>Get comprehensive information about websites.</p>
+      </article>
+      <article class="card">
+        <h3>QR CODE SUPPORT</h3>
+        <p>Scan QR codes safely and validate their destination URLs before visiting suspicious links.</p>
+      </article>
+      <article class="card">
+        <h3>INSTANT RESULT</h3>
+        <p>Get immediate feedback on link safety with color‑coded risk levels and detailed explanations.</p>
+      </article>
+    </section>
+  </main>
+  <script src="JS/script.js"></script>
+</body>
+</html>
