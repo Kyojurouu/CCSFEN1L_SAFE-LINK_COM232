@@ -6,14 +6,7 @@
 
 Unlike existing solutions that are either complex or limited to browser/email filters, SafeLink offers a simple and preventive approach to link verification. It automatically scans and validates URLs whether direct or shortened before users open them, reducing risks of phishing, malware, and scams.
 
-The system aims to balance **usability** and **security**, making cybersecurity accessible to non-technical users. By metadata checks, and URL pattern analysis, SafeLink delivers **real-time scanning** and **instant feedback** for safer online experiences.
-
-### Key Areas of Focus
-
-* **URL Intake & Validation**: Users can input links manually or through QR scanning.
-* **Threat Detection**: Scans links against APIs, databases, and heuristic rules.
-* **Reports & Alerts**: Provides instant safety scores and recommendations.
-* **Accessibility**: Aimed at schools, communities, and small organizations with limited IT support.
+The system aims to balance **usability** and **security**, making cybersecurity accessible to non-technical users. By metadata checks and URL pattern analysis, SafeLink delivers **real-time scanning** and **instant feedback** for safer online experiences.
 
 ## Tools and Technologies Used
 
@@ -27,6 +20,8 @@ The system aims to balance **usability** and **security**, making cybersecurity 
 
 * **Automated URL Scanning**: Detects phishing, malware, and suspicious redirects.
 * **QR Code Support**: Allows scanning of QR codes that redirect to URLs.
+* **Threat Detection**: Scans links against databases and heuristic rules.
+* **Reports & Alerts**: Provides instant safety scores and recommendations.
 * **Metadata Analysis**: Extracts site data (title, SSL, redirects, expiration, registrar details) for deeper checks.
 * **User-Friendly Interface**: Designed with simplicity and clarity for non-technical users.
 * **Awareness & Education**: Provides safety advice and basic cybersecurity tips.
