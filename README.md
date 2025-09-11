@@ -29,3 +29,14 @@ The system aims to balance **usability** and **security**, making cybersecurity 
 ## Expected Outcomes
 
 This project will deliver a functional **web-based link security scanner** that bridges the gap between professional-grade cybersecurity tools and the needs of everyday users. By focusing on accessibility and practicality, **SafeLink** empowers communities to browse safely, avoid scams, and build stronger cybersecurity awareness.
+
+## The Forensic Five
+* **Calub, John Paul**:
+* **Corbin, Ferdinand**:
+* **Evangelista, John Mikael**:
+* **Sevilla, Tristan Jay**:
+* **Solo, Alvhin**:
+
+
+
+
