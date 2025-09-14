@@ -4,6 +4,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from Scanner.url_scanner import scan_url, get_scanner_status
+import numpy as np
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -43,16 +44,18 @@ def scan_url_endpoint():
             }), 500
         
         # URL Scanner returns complete formatted response
+        # Convert numpy types to Python native types for JSON serialization
         response = {
-            'url': result['url'],
-            'domain': result['domain'],
-            'prediction': result['prediction'],
-            'confidence': result['confidence'],
-            'risk_score': result['risk_score'],
-            'is_safe': result['is_safe'],
-            'risk_level': result['risk_level'],
-            'features': result['features'],
-            'model_used': result['model_used']
+            'url': str(result['url']),
+            'domain': str(result['domain']),
+            'prediction': str(result['prediction']),
+            'confidence': float(result['confidence']),
+            'risk_score': float(result['risk_score']),
+            'is_safe': bool(result['is_safe']),
+            'risk_level': str(result['risk_level']),
+            'features': {k: int(v) if isinstance(v, (bool, np.bool_)) else float(v) if isinstance(v, (np.integer, np.floating)) else v 
+                        for k, v in result['features'].items()},
+            'model_used': str(result['model_used'])
         }
         
         return jsonify(response)

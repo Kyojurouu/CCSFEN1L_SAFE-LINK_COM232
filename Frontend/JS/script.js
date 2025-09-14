@@ -1,4 +1,8 @@
-document.getElementById('y').textContent = new Date().getFullYear();
+// Set year if element exists
+const yearElement = document.getElementById('y');
+if (yearElement) {
+    yearElement.textContent = new Date().getFullYear();
+}
  
     function showScanner() {
       document.querySelector('.hero').style.display = 'none';
@@ -31,8 +35,11 @@ document.getElementById('y').textContent = new Date().getFullYear();
 
     // Function to scan URL using ML model
     async function scanURL() {
+      console.log('scanURL function called');
       const urlInput = document.getElementById('url-input');
       const resultsDiv = document.getElementById('results');
+      
+      console.log('Found elements:', { urlInput: !!urlInput, resultsDiv: !!resultsDiv });
       
       if (!urlInput || !resultsDiv) {
         console.error('Required elements not found');
@@ -40,6 +47,7 @@ document.getElementById('y').textContent = new Date().getFullYear();
       }
 
       const url = urlInput.value.trim();
+      console.log('URL to scan:', url);
       if (!url) {
         alert('Please enter a URL to scan');
         return;
@@ -110,9 +118,11 @@ document.getElementById('y').textContent = new Date().getFullYear();
           <div>Protocol: ${data.features.Protocol ? 'HTTPS' : 'HTTP'}</div>
           <div>Domain Length: ${data.features.DomainLength}</div>
           <div>URL Length: ${data.features.URLLength}</div>
+          <div>Subdomains: ${data.features.Subdomains}</div>
           <div>Special Chars: ${data.features.SpecialCharCount}</div>
           <div>Is IP: ${data.features.IsIP ? 'Yes' : 'No'}</div>
-          <div>Entropy: ${data.features.Entropy.toFixed(3)}</div>
+          <div>TLD .com: ${data.features['TLD_.com'] ? 'Yes' : 'No'}</div>
+          <div>Brand Keywords: ${data.features.BrandKeywords}</div>
         </div>
       `;
 
@@ -163,5 +173,58 @@ document.getElementById('y').textContent = new Date().getFullYear();
       }
     }
 
-    // Check API and model status when page loads
-    document.addEventListener('DOMContentLoaded', checkAPIStatus);
+    // Initialize API check and event listeners when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM Content Loaded');
+      checkAPIStatus();
+      
+      // Add event listeners for buttons
+      const scanUrlBtn = document.getElementById('scan-url-btn');
+      const urlInput = document.getElementById('url-input');
+      const scannerSection = document.querySelector('.scanner-section');
+      
+      console.log('Found elements:', { 
+        scanUrlBtn: !!scanUrlBtn, 
+        urlInput: !!urlInput, 
+        scannerSection: !!scannerSection,
+        scannerVisible: scannerSection ? scannerSection.style.display : 'unknown'
+      });
+      
+      if (scanUrlBtn) {
+        console.log('Adding click event listener to scan button');
+        scanUrlBtn.addEventListener('click', function(e) {
+          console.log('🔥 SCAN BUTTON CLICKED!');
+          e.preventDefault();
+          
+          // Check if scanner section is visible
+          const scanner = document.querySelector('.scanner-section');
+          if (scanner && scanner.style.display === 'none') {
+            console.log('⚠️ Scanner section is hidden! User needs to click START SCANNING first');
+            alert('Please click "START SCANNING" button first to access the scanner!');
+            return;
+          }
+          
+          scanURL();
+        });
+      } else {
+        console.error('❌ SCAN BUTTON NOT FOUND!');
+      }
+      
+      if (urlInput) {
+        urlInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            console.log('Enter key pressed in URL input');
+            
+            // Check if scanner section is visible
+            const scanner = document.querySelector('.scanner-section');
+            if (scanner && scanner.style.display === 'none') {
+              console.log('⚠️ Scanner section is hidden! User needs to click START SCANNING first');
+              alert('Please click "START SCANNING" button first to access the scanner!');
+              return;
+            }
+            
+            scanURL();
+          }
+        });
+      }
+    });
