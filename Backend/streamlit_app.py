@@ -2,6 +2,8 @@
 SafeLink Streamlit App
 A simple web interface for URL scanning using the trained ML model
 """
+
+# python -m streamlit run d:/Downloads/Documents/GitHub/CCSFEN1L_SAFE-LINK_COM232/Backend/streamlit_app.py
 import streamlit as st
 import sys
 import os
