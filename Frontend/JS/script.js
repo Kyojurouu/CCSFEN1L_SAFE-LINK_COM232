@@ -1,4 +1,8 @@
-document.getElementById('y').textContent = new Date().getFullYear();
+    try {
+      const yEl = document.getElementById('y');
+      if (yEl) yEl.textContent = new Date().getFullYear();
+    } catch (e) { console.warn('No #y element found'); }
+
  
     function showScanner() {
       document.querySelector('.hero').style.display = 'none';
