@@ -47,7 +47,12 @@ class URLScanner:
             print(f"❌ URL Scanner: Error loading model - {e}")
     
     def extract_features(self, url):
-        """Extract features from URL (matches training data format exactly - 19 features)"""
+        """Extract features from URL (matches final trained model - 18 features, entropy removed)
+        
+        Features in order:
+        1. Protocol, 2. DomainLength, 3. URLLength, 4. Subdomains, 5. SpecialCharCount, 
+        6. IsIP, 7-17. TLD features (.com, .org, etc.), 18. BrandKeywords
+        """
         parsed = urlparse(url)
         
         # 1. Protocol (0 for http, 1 for https)
@@ -89,7 +94,7 @@ class URLScanner:
         brand_keywords = ['amazon', 'google', 'microsoft', 'apple', 'facebook', 'paypal', 'ebay', 'netflix', 'twitter', 'instagram']
         brand_keyword_count = sum(1 for keyword in brand_keywords if keyword in url.lower())
         
-        # Create feature array with 18 features
+        # Create feature array with 18 features (without entropy - matching final trained model)
         feature_array = [
             protocol, domain_length, url_length, subdomains, special_char_count, is_ip,
             tld_com, tld_org, tld_net, tld_edu, tld_gov, tld_xyz, tld_top, tld_ru, tld_cn, tld_zip, tld_info,
