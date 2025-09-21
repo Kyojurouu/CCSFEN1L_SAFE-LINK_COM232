@@ -332,7 +332,7 @@ function displayMLResults(data) {
             ${data.prediction ? data.prediction.toUpperCase() : 'N/A'}
           </div>
         </div>
-             <!-- Risk Level Bar -->
+      <!-- Risk Level Bar -->
       <div style="margin-bottom: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <span style="color: #d1d5db; font-weight: 600;">Risk Level</span>
@@ -418,18 +418,19 @@ function generateFeatureItems(features) {
   
   const items = [];
   
-  // Protocol
+  // Protocol (has_http: 1 means HTTP, 0 means HTTPS)
+  const isHTTPS = features.has_http === 0;
   items.push(`
     <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
       <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">Protocol:</div>
       <div style="
-        background: ${features.Protocol ? '#1f2937' : '#7f1d1d'};
-        color: ${features.Protocol ? '#fbbf24' : '#ef4444'};
+        background: ${isHTTPS ? '#1f2937' : '#7f1d1d'};
+        color: ${isHTTPS ? '#10b981' : '#ef4444'};
         padding: 4px 8px;
         border-radius: 4px;
         font-size: 11px;
         font-weight: 700;
-      ">${features.Protocol ? '🔒 HTTPS' : '🔓 HTTP'}</div>
+      ">${isHTTPS ? '🔒 HTTPS' : '🔓 HTTP'}</div>
     </div>
   `);
   
@@ -437,7 +438,7 @@ function generateFeatureItems(features) {
   items.push(`
     <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
       <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">Domain Length:</div>
-      <div style="color: white; font-weight: 600;">${features.DomainLength || 0} chars</div>
+      <div style="color: white; font-weight: 600;">${features.domain_length || 0} chars</div>
     </div>
   `);
   
@@ -445,7 +446,7 @@ function generateFeatureItems(features) {
   items.push(`
     <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
       <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">URL Length:</div>
-      <div style="color: white; font-weight: 600;">${features.URLLength || 0} chars</div>
+      <div style="color: white; font-weight: 600;">${features.url_length || 0} chars</div>
     </div>
   `);
   
@@ -453,7 +454,7 @@ function generateFeatureItems(features) {
   items.push(`
     <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
       <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">Special Characters:</div>
-      <div style="color: white; font-weight: 600;">${features.SpecialCharCount || 0}</div>
+      <div style="color: white; font-weight: 600;">${features.num_special || 0}</div>
     </div>
   `);
   
@@ -462,24 +463,91 @@ function generateFeatureItems(features) {
     <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
       <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">IP Address:</div>
       <div style="
-        background: ${features.IsIP ? '#7f1d1d' : '#1f2937'};
-        color: ${features.IsIP ? '#ef4444' : '#10b981'};
+        background: ${features.is_ip_address === 1 ? '#7f1d1d' : '#1f2937'};
+        color: ${features.is_ip_address === 1 ? '#ef4444' : '#10b981'};
         padding: 4px 8px;
         border-radius: 4px;
         font-size: 11px;
         font-weight: 700;
-      ">${features.IsIP ? '⚠️ Yes' : '✅ No'}</div>
+      ">${features.is_ip_address === 1 ? '⚠️ Yes' : '✅ No'}</div>
     </div>
   `);
   
-  // Entropy
-  const entropyValue = features.Entropy !== undefined ? features.Entropy.toFixed(3) : 'N/A';
+  // Number of Dots
   items.push(`
     <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
-      <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">Entropy:</div>
-      <div style="color: white; font-weight: 600;">${entropyValue}</div>
+      <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">Dots Count:</div>
+      <div style="color: white; font-weight: 600;">${features.num_dots || 0}</div>
     </div>
   `);
+  
+  // Number of Hyphens
+  items.push(`
+    <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+      <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">Hyphens:</div>
+      <div style="color: white; font-weight: 600;">${features.num_hyphens || 0}</div>
+    </div>
+  `);
+  
+  // Number of Digits
+  items.push(`
+    <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+      <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">Digits:</div>
+      <div style="color: white; font-weight: 600;">${features.num_digits || 0}</div>
+    </div>
+  `);
+  
+  // Path Length
+  items.push(`
+    <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+      <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">Path Length:</div>
+      <div style="color: white; font-weight: 600;">${features.path_length || 0} chars</div>
+    </div>
+  `);
+  
+  // Suspicious Keywords (if available)
+  if (features.has_phishing_kw !== undefined) {
+    items.push(`
+      <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+        <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">Phishing Keywords:</div>
+        <div style="
+          background: ${features.has_phishing_kw === 1 ? '#7f1d1d' : '#1f2937'};
+          color: ${features.has_phishing_kw === 1 ? '#ef4444' : '#10b981'};
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 11px;
+          font-weight: 700;
+        ">${features.has_phishing_kw === 1 ? '⚠️ Found' : '✅ None'}</div>
+      </div>
+    `);
+  }
+  
+  // URL Shortener (if available)
+  if (features.is_url_shortener !== undefined) {
+    items.push(`
+      <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+        <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">URL Shortener:</div>
+        <div style="
+          background: ${features.is_url_shortener === 1 ? '#f59e0b' : '#1f2937'};
+          color: ${features.is_url_shortener === 1 ? '#000' : '#10b981'};
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 11px;
+          font-weight: 700;
+        ">${features.is_url_shortener === 1 ? '⚠️ Yes' : '✅ No'}</div>
+      </div>
+    `);
+  }
+  
+  // Subdomains (if available)
+  if (features.num_subdomains !== undefined) {
+    items.push(`
+      <div style="background: rgba(59, 130, 246, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+        <div style="color: #93c5fd; font-size: 12px; margin-bottom: 4px;">Subdomains:</div>
+        <div style="color: white; font-weight: 600;">${features.num_subdomains}</div>
+      </div>
+    `);
+  }
   
   return items.join('');
 }
