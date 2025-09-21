@@ -322,7 +322,7 @@ function displayMLResults(data) {
       <!-- Stats Grid -->
       <div style="
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 16px;
         margin-bottom: 24px;
       ">
@@ -332,12 +332,7 @@ function displayMLResults(data) {
             ${data.prediction ? data.prediction.toUpperCase() : 'N/A'}
           </div>
         </div>
-        <div style="background: rgba(75, 85, 99, 0.6); padding: 16px; border-radius: 12px;">
-          <div style="color: #9ca3af; font-size: 12px; margin-bottom: 4px;">CONFIDENCE:</div>
-          <div style="color: white; font-weight: 600;">${data.confidence !== undefined ? data.confidence + '%' : 'N/A'}</div>
-        </div>
-      </div>
-      <!-- Risk Level Bar -->
+             <!-- Risk Level Bar -->
       <div style="margin-bottom: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <span style="color: #d1d5db; font-weight: 600;">Risk Level</span>
@@ -406,8 +401,8 @@ function displayMLResults(data) {
         <div style="font-weight: 600; margin-bottom: 8px;">Recommendation:</div>
         <div style="opacity: 0.9;">
           ${data.is_safe 
-            ? '✅ This URL appears to be safe to visit.' 
-            : '⚠️ Exercise caution with this URL. Consider additional verification before visiting.'}
+            ? '✅ SafeLink found no immediate threats or suspicious content. This URL appears to be safe to visit.' 
+            : '⚠️ SafeLink recommend additional verification before visiting, as security risks were detected. Exercise caution with this URL. '}
         </div>
       </div>
     </div>
