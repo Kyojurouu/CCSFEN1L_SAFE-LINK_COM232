@@ -244,10 +244,10 @@ async function scanURL() {
       ">
         <h3 style="margin: 0 0 12px; color: #fca5a5;">❌ Error</h3>
         <p style="margin: 0 0 16px;">${error.message}</p>
-        <p style="margin: 0 0 8px; font-weight: 600;">Make sure:</p>
+        <p style="margin: 0 0 8px; font-weight: 600;">You may also try:</p>
         <ul style="margin: 0; padding-left: 20px; opacity: 0.9;">
-          <li>Flask server is running (python app.py)</li>
-          <li>ML model is trained (run LogisticRegression_Algorithm.ipynb)</li>
+          <li>Running the Flask server (python app.py)</li>
+          <li>Running the ML model (run Train.ipynb)</li>
         </ul>
       </div>
     `;

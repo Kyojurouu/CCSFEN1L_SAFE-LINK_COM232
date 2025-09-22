@@ -10,6 +10,93 @@ import math
 from collections import Counter
 import os
 
+def is_valid_url(url):
+    """
+    Validate if a URL is properly formatted and accessible for processing.
+    Returns tuple: (is_valid: bool, error_message: str or None)
+    """
+    if not url or not isinstance(url, str):
+        return False, "URL cannot be empty or None"
+    
+    # Remove leading/trailing whitespace
+    url = url.strip()
+    
+    # Check minimum length
+    if len(url) < 4:
+        return False, "URL is too short to be valid"
+    
+    # Check for obvious keyboard mashing (too many consecutive identical characters)
+    if re.search(r'(.)\1{5,}', url):
+        return False, "URL contains too many consecutive identical characters"
+    
+    # Add protocol if missing but looks like a valid domain
+    if not url.startswith(('http://', 'https://')):
+        # Check if it looks like a domain (contains at least one dot and no spaces)
+        if '.' in url and ' ' not in url and not url.startswith('//'):
+            url = 'https://' + url
+        else:
+            return False, "Please make sure you've inputted a valid URL (e.g., https://example.com)"
+    
+    # Basic URL format validation using regex
+    url_pattern = re.compile(
+        r'^https?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    
+    if not url_pattern.match(url):
+        return False, "URL format is invalid. Please enter a valid URL (e.g., https://example.com)"
+    
+    # Try to parse with urllib to catch additional issues
+    try:
+        parsed = urlparse(url)
+        if not parsed.netloc:
+            return False, "URL is missing a valid domain name"
+        
+        # Check for obviously invalid domain patterns
+        if parsed.netloc.count('.') == 0 and parsed.netloc not in ['localhost']:
+            return False, "Domain name appears to be invalid"
+            
+    except Exception as e:
+        return False, f"URL parsing failed: {str(e)}"
+    
+    return True, url  # Return the cleaned URL
+
+def get_valid_url_input(prompt_message="Please enter a valid URL: "):
+    """
+    Interactive function to get a valid URL from user input.
+    Keeps prompting until a valid URL is provided.
+    """
+    while True:
+        try:
+            url = input(prompt_message).strip()
+            
+            # Allow user to quit
+            if url.lower() in ['quit', 'exit', 'q']:
+                return None
+                
+            is_valid, result = is_valid_url(url)
+            
+            if is_valid:
+                return result  # Return the cleaned/validated URL
+            else:
+                print(f"❌ Invalid URL: {result}")
+                print("💡 Examples of valid URLs:")
+                print("   - https://www.google.com")
+                print("   - http://example.com")
+                print("   - github.com (will be converted to https://github.com)")
+                print("   - Type 'quit' to exit")
+                prompt_message = "Please try again with a valid URL: "
+                
+        except KeyboardInterrupt:
+            print("\n\n👋 Goodbye!")
+            return None
+        except EOFError:
+            print("\n\n👋 Goodbye!")
+            return None
+
 class URLScanner:
     def __init__(self, model_dir=None):
         if model_dir is None:
@@ -224,9 +311,26 @@ class URLScanner:
                 'features': {}
             }
         
+        # Validate URL format before processing
+        is_valid, validation_result = is_valid_url(url)
+        if not is_valid:
+            return {
+                'error': f'Invalid URL: {validation_result}',
+                'prediction': 'invalid',
+                'is_safe': None,
+                'confidence': 0,
+                'risk_score': 0,
+                'features': {},
+                'url': url,
+                'validation_error': True
+            }
+        
+        # Use the cleaned/validated URL for processing
+        validated_url = validation_result
+        
         try:
             # Extract features
-            feature_data = self.extract_features(url)
+            feature_data = self.extract_features(validated_url)
             features = feature_data['feature_array']
             
             # Scale features
@@ -240,7 +344,7 @@ class URLScanner:
             risk_score = probabilities[1] * 100
             confidence = max(probabilities) * 100
             
-            domain = urlparse(url).netloc.lower()
+            domain = urlparse(validated_url).netloc.lower()
             
             if hasattr(self, 'model_version') and self.model_version == "v3":
                 # HYBRID APPROACH: Rule-based + ML for better accuracy
@@ -320,11 +424,11 @@ class URLScanner:
                         prediction_text = 'malicious'
                         risk_level = 'high'
                 
-                # Handle URL shorteners
-                if 'is_url_shortener' in feature_data and feature_data['is_url_shortener'] == 1:
-                    prediction_text = 'url_shortener'
-                    risk_level = 'medium'
-                    is_safe = False
+                # # Handle URL shorteners
+                # if 'is_url_shortener' in feature_data and feature_data['is_url_shortener'] == 1:
+                #     prediction_text = 'url_shortener'
+                #     risk_level = 'medium'
+                #     is_safe = False
                     
             else:
                 # Legacy Model 2 - needs more aggressive reputation adjustments
@@ -392,7 +496,8 @@ class URLScanner:
                     is_safe = False
             
             return {
-                'url': url,
+                'url': validated_url,
+                'original_input': url,
                 'prediction': prediction_text,
                 'is_safe': is_safe,
                 'confidence': round(confidence, 2),
@@ -401,7 +506,7 @@ class URLScanner:
                 'reputation_adjustment': reputation_adjustment,
                 'risk_level': risk_level,
                 'features': {k: v for k, v in feature_data.items() if k != 'feature_array'},
-                'domain': urlparse(url).netloc,
+                'domain': urlparse(validated_url).netloc,
                 'domain_reputation': domain_rep if hasattr(self, 'model_version') and self.model_version == "v2" else None,
                 'model_used': f'logistic_regression_{self.model_version}' if hasattr(self, 'model_version') else 'logistic_regression'
             }
@@ -437,6 +542,56 @@ def scan_url(url):
     """Convenience function to scan a single URL"""
     return url_scanner.classify_url(url)
 
+def scan_url_interactive():
+    """Interactive URL scanner with error handling and retry mechanism"""
+    print("🔍 Safe Link URL Scanner")
+    print("=" * 40)
+    print("Enter URLs to scan for safety. Type 'quit' to exit.")
+    print()
+    
+    while True:
+        url = get_valid_url_input("🌐 Enter URL to scan: ")
+        
+        if url is None:  # User quit
+            break
+            
+        print("\n🔄 Scanning URL...")
+        result = scan_url(url)
+        
+        if 'error' in result:
+            print(f"❌ Error: {result['error']}")
+        else:
+            # Display results
+            print(f"🎯 **Analysis Results for:** {result['url']}")
+            if result.get('original_input') != result['url']:
+                print(f"   (Original input: {result['original_input']})")
+            print()
+            
+            # Safety status
+            safety_emoji = "✅" if result['is_safe'] else "⚠️"
+            safety_text = "SAFE" if result['is_safe'] else "RISKY"
+            print(f"{safety_emoji} **Status:** {safety_text}")
+            
+            # Risk level with color coding
+            risk_level = result.get('risk_level', 'unknown').upper()
+            if risk_level == 'LOW':
+                risk_emoji = "🟢"
+            elif risk_level == 'MEDIUM':
+                risk_emoji = "🟡"
+            else:
+                risk_emoji = "🔴"
+            
+            print(f"{risk_emoji} **Risk Level:** {risk_level}")
+            print(f"📊 **Risk Score:** {result['risk_score']}%")
+            print(f"🎯 **Classification:** {result['prediction'].upper()}")
+            print(f"🔍 **Domain:** {result['domain']}")
+            
+            # Show model info
+            if 'model_used' in result:
+                print(f"🤖 **Model:** {result['model_used']}")
+        
+        print("\n" + "="*50 + "\n")
+
 def get_scanner_status():
     """Get scanner model status"""
     return url_scanner.get_model_status()
@@ -444,22 +599,46 @@ def get_scanner_status():
 # Test function
 if __name__ == "__main__":
     test_urls = [
+        # Valid URLs
         "https://www.google.com",
         "http://malicious-site.tk/login?id=123&password=test",
         "https://github.com/user/repo",
-        "http://192.168.1.1/admin"
+        "http://192.168.1.1/admin",
+        "github.com",  # Should be auto-fixed to https://github.com
+        
+        # Invalid URLs (keyboard mashing and invalid formats)
+        "asdfghjklqwerty",  # Keyboard mashing
+        "aaaaaaaaaaaaa",    # Consecutive characters
+        "http://",          # Incomplete URL
+        "",                 # Empty string
+        "   ",              # Only whitespace
+        "not a url at all", # Clearly not a URL
+        "ftp://invalid",    # Wrong protocol
+        "just.a.domain.with.no.tld", # Invalid domain
     ]
     
-    print("🔍 Testing URL Scanner...")
-    print("=" * 50)
+    print("🔍 Testing URL Scanner with Error Handling...")
+    print("=" * 60)
     
     for url in test_urls:
         result = scan_url(url)
-        print(f"URL: {url}")
+        print(f"Input: '{url}'")
+        
         if 'error' in result:
             print(f"❌ Error: {result['error']}")
+            if result.get('validation_error'):
+                print("🔧 This is a URL validation error")
         else:
+            processed_url = result['url']
+            if result.get('original_input') != processed_url:
+                print(f"🔄 Auto-corrected to: {processed_url}")
             print(f"🎯 Prediction: {result['prediction'].upper()}")
             print(f"📊 Risk Score: {result['risk_score']}%")
             print(f"✅ Safe: {'Yes' if result['is_safe'] else 'No'}")
-        print("-" * 50)
+        print("-" * 60)
+    
+    print("\n🎮 For interactive testing, call scan_url_interactive()")
+    print("Example: python url_scanner.py")
+    
+    # Uncomment the line below to run interactive mode automatically
+    # scan_url_interactive()
