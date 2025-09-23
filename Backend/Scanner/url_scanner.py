@@ -193,11 +193,14 @@ class URLScanner:
             domain_parts = hostname.split('.')
             main_domain = domain_parts[0] if domain_parts else ""
             
-            # TLD analysis
+            # TLD analysis - Enhanced to include country-specific educational domains
             suspicious_tlds = ['.tk', '.ml', '.ga', '.cf', '.pw']
             has_suspicious_tld = 1 if any(hostname.endswith(tld) for tld in suspicious_tlds) else 0
             
-            legitimate_tlds = ['.com', '.org', '.net', '.edu', '.gov', '.mil']
+            # Enhanced legitimate TLD list including educational domains worldwide
+            legitimate_tlds = ['.com', '.org', '.net', '.edu', '.gov', '.mil', 
+                             '.edu.ph', '.edu.au', '.edu.sg', '.edu.my', '.edu.in',
+                             '.ac.uk', '.edu.cn', '.edu.br', '.edu.mx', '.edu.co']
             has_legitimate_tld = 1 if any(hostname.endswith(tld) for tld in legitimate_tlds) else 0
             
             # Domain structure analysis
@@ -359,6 +362,19 @@ class URLScanner:
                     'epicgames.com', 'riot.com', 'blizzard.com', 'ea.com', 'ubisoft.com', 'riotgames.com', 'roblox.com'
                 ]
                 
+                # Educational institution domains (highly trusted)
+                educational_domains = ['.edu', '.edu.ph', '.edu.au', '.edu.sg', '.edu.my', '.edu.in',
+                                     '.ac.uk', '.edu.cn', '.edu.br', '.edu.mx', '.edu.co', '.ac.in', '.ac.jp']
+                
+                is_educational = any(domain.endswith(edu_domain) for edu_domain in educational_domains)
+                
+                # Also check for educational patterns in domain names
+                educational_patterns = ['university', 'college', 'school', 'institute', 'academy', 'national-u']
+                has_edu_pattern = any(pattern in domain.lower() for pattern in educational_patterns)
+                
+                # Combine educational checks
+                is_educational = is_educational or (has_edu_pattern and '.edu.' in domain)
+                
                 is_major_legitimate = any(legit_domain in domain for legit_domain in major_legitimate_domains)
                 
                 # Rule-based overrides for clearly suspicious patterns
@@ -371,13 +387,13 @@ class URLScanner:
                 
                 is_clearly_suspicious = any(suspicious_indicators)
                 
-                if is_major_legitimate:
-                    # Override: Major legitimate domains are always safe
+                if is_major_legitimate or is_educational:
+                    # Override: Major legitimate domains and educational institutions are always safe
                     is_safe = True
                     prediction_text = 'benign'
                     risk_level = 'low'
-                    adjusted_risk_score = min(risk_score * 0.3, 25)  # Cap at 25% for major domains
-                    reputation_adjustment = -(risk_score * 0.7)  # Show the adjustment made
+                    adjusted_risk_score = min(risk_score * 0.2, 20)  # Cap at 20% for trusted domains
+                    reputation_adjustment = -(risk_score * 0.8)  # Show the adjustment made
                     
                 elif is_clearly_suspicious:
                     # Use ML prediction but ensure it's flagged as risky
@@ -399,8 +415,8 @@ class URLScanner:
                     reputation_adjustment = 0
                     
                     # Small bonus for clearly legitimate patterns
-                    if any(pattern in domain for pattern in ['.edu', '.gov', '.mil', '.org']):
-                        reputation_adjustment -= 15
+                    if any(pattern in domain for pattern in ['.edu', '.gov', '.mil', '.org']) or is_educational:
+                        reputation_adjustment -= 25
                     
                     # Small bonus for well-formed domains
                     if (len(domain.split('.')[0]) >= 4 and 
